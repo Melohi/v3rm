@@ -1,0 +1,158 @@
+local function UpdateWeapon(chosenWeapon, weaponFolder)
+    local weapon = game:GetService("ReplicatedStorage").Assets.Weapons[weaponFolder][chosenWeapon]:Clone()
+    weapon.Parent = game:GetService("ReplicatedStorage").Assets.Weapons[weaponFolder]
+    weapon.Name = chosenWeapon
+    game:GetService("ReplicatedStorage").Assets.Weapons[weaponFolder].Default:Destroy()
+    game:GetService("ReplicatedStorage").Assets.Weapons[weaponFolder][chosenWeapon].Name = "Default"
+end
+
+if game:GetService("CoreGui"):FindFirstChild("ScreenGui") then
+    game:GetService("CoreGui").ScreenGui:Destroy()
+end
+
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/un-named%20backups/jans"))()
+local client = game:GetService("Players").LocalPlayer
+local main = library:CreateWindow("Rush Point")
+local SkinFolder = main:AddFolder('Skin Changer')
+
+local chosenKnife = "Default"
+local chosenChancellor = "Default"
+local chosenSentinel = "Default"
+local chosenCrimson = "Default"
+local chosenEclipse = "Default"
+local chosenVapor = "Default"
+local chosenFury = "Default"
+local chosenInfuser = "Default"
+
+SkinFolder:AddList({
+    text = "Knife Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Knife:GetChildren(),
+    callback = function(a)
+        chosenKnife = a
+    end
+})
+
+SkinFolder:AddList({
+    text = "Chancellor Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Chancellor:GetChildren(),
+    callback = function(a)
+        chosenChancellor = a
+    end
+})
+
+SkinFolder:AddList({
+    text = "Sentinel Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Sentinel:GetChildren(),
+    callback = function(a)
+        chosenSentinel = a
+    end
+})
+
+SkinFolder:AddList({
+    text = "Crimson Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Crimson:GetChildren(),
+    callback = function(a)
+        chosenCrimson = a
+    end
+})
+
+SkinFolder:AddList({
+    text = "Eclipse Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Eclipse:GetChildren(),
+    callback = function(a)
+        chosenEclipse = a
+    end
+})
+
+SkinFolder:AddList({
+    text = "Vapor Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Vapor:GetChildren(),
+    callback = function(a)
+        chosenVapor = a
+    end
+})
+
+SkinFolder:AddList({
+    text = "Fury Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Fury:GetChildren(),
+    callback = function(a)
+        chosenFury = a
+    end
+})
+
+SkinFolder:AddList({
+    text = "Infuser Skin",
+    flag = "list",
+    value = "Default",
+    values = game:GetService("ReplicatedStorage").Assets.Weapons.Infuser:GetChildren(),
+    callback = function(a)
+        chosenInfuser = a
+    end
+})
+
+SkinFolder:AddButton({
+    text = "Update Skins",
+    flag = "button",
+    callback = function()
+        UpdateWeapon(chosenInfuser, "Infuser")
+        UpdateWeapon(chosenFury, "Fury")
+        UpdateWeapon(chosenVapor, "Vapor")
+        UpdateWeapon(chosenEclipse, "Eclipse")
+        UpdateWeapon(chosenCrimson, "Crimson")
+        UpdateWeapon(chosenSentinel, "Sentinel")
+        UpdateWeapon(chosenChancellor, "Chancellor")
+        UpdateWeapon(chosenKnife, "Knife")
+    end
+})
+
+main:AddBind({
+    text = "Toggle UI",
+    key = "LeftControl",
+    callback = function()
+        library:Close()
+    end
+})
+
+library:Init()
+
+
+SkinFolder:AddButton({
+    text = "Update Skins",
+    flag = "button",
+    callback = function()
+        UpdateWeapon(chosenInfuser, "Infuser")
+        UpdateWeapon(chosenFury, "Fury")
+        UpdateWeapon(chosenVapor, "Vapor")
+        UpdateWeapon(chosenEclipse, "Eclipse")
+        UpdateWeapon(chosenCrimson, "Crimson")
+        UpdateWeapon(chosenSentinel, "Sentinel")
+        UpdateWeapon(chosenChancellor, "Chancellor")
+        UpdateWeapon(chosenKnife, "Knife")
+    end
+})
+
+main:AddBind({
+    text = "Toggle UI",
+    key = "LeftControl",
+    callback = function()
+        library:Close()
+    end
+})
+
+library:Init()
+
+
