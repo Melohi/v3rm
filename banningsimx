@@ -1,0 +1,144 @@
+if game:GetService("CoreGui"):FindFirstChild("ScreenGui") then
+    game:GetService("CoreGui").ScreenGui:Destroy()
+end
+
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Melohi/v3rm/main/uwuwareblue"))()
+local client = game:GetService("Players").LocalPlayer
+local main = library:CreateWindow("Banning Simulator X")
+local MainFolder = main:AddFolder('Autofarm')
+local TeleportFolder = main:AddFolder('Teleport')
+local EggFolder = main:AddFolder('Eggs')
+local MiscellaneousFolder = main:AddFolder('Miscellaneous')
+
+local chosenNpc = "Beach Boy"
+local chosenEgg = "Starter"
+local RawVoidState = false
+
+local function generateRandomString(length)
+    local chars = {}
+    for i = 1, length do
+        chars[i] = string.char(math.random(97, 122)) -- ASCII values for lowercase letters
+    end
+    return table.concat(chars)
+end
+
+MainFolder:AddList({
+    text = "Npc",
+    flag = "list",
+    value = "Beach Boy",
+    values = game:GetService("ReplicatedStorage").assetObjects.npcs:GetChildren(),
+    callback = function(a)
+        chosenNpc = a
+    end
+})
+
+MainFolder:AddToggle({text = "Auto-Farm", flag = "autofarm", callback = function(state)
+if state then
+getgenv().Autofarm = true
+		while Autofarm == true do
+local args = {
+    [1] = workspace:WaitForChild("npcs"):WaitForChild(chosenNpc)
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("damageNPC"):FireServer(unpack(args))
+
+task.wait()
+		end
+else
+getgenv().Autofarm = false
+end
+end})
+
+TeleportFolder:AddList({
+    text = "Place",
+    flag = "list",
+    value = "Beach",
+    values = game:GetService("Workspace").worlds["Ban Land"].zones:GetChildren(),
+    callback = function(a)
+local offset = Vector3.new(0, 2, 0)
+local targetPosition = game:GetService("Workspace").worlds["Ban Land"].zones[a].floor.Position + offset
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+    end
+})
+
+EggFolder:AddList({
+    text = "Egg",
+    flag = "list",
+    value = "Starter",
+    values = game:GetService("Workspace").interactions.eggs:GetChildren(),
+    callback = function(a)
+        chosenEgg = a
+    end
+})
+
+EggFolder:AddToggle({text = "Void", flag = "autofarm", callback = function(state)
+if state then
+getgenv().Void = true
+            RawVoidState = true
+            print(RawVoidState)
+else
+getgenv().Void = false
+RawVoidState = false
+print(RawVoidState)
+end
+end})
+
+EggFolder:AddToggle({text = "Enabled", flag = "autofarm", callback = function(state)
+if state then
+getgenv().EggFarm = true
+		while EggFarm == true do
+local randomString = generateRandomString(36)
+
+local args = {
+    [1] = randomString,
+    [2] = {
+        [1] = 1,
+        [2] = chosenEgg,
+        [3] = RawVoidState
+    }
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("eggs/hatchEgg"):FireServer(unpack(args))
+task.wait()
+		end
+else
+getgenv().EggFarm = false
+end
+end})
+
+MiscellaneousFolder:AddToggle({text = "Auto-Rank", flag = "autofarm", callback = function(state)
+if state then
+getgenv().Autofarm = true
+		while Autofarm == true do
+game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("unlockRank"):FireServer()
+task.wait()
+		end
+else
+getgenv().Autofarm = false
+end
+end})
+
+MiscellaneousFolder:AddButton({text = "Redeem all codes", flag = "button", callback = function()
+local codetable = {"YTitsJohn","Release","FreeCoins","FreeGems","Dungeons","ReleaseComp","FreeCurrency","FreePet","Interbyte","TimeTrials"}
+
+local args = {
+    [1] = generateRandomString(36),
+    [2] = {
+        [1] = codetable
+    }
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("media/redeemCode"):FireServer(unpack(args))
+
+end})
+
+main:AddBind({
+    text = "Toggle UI",
+    key = "LeftControl",
+    callback = function()
+        library:Close()
+    end
+})
+
+library:Init()
+
