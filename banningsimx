@@ -108,13 +108,13 @@ end})
 
 MiscellaneousFolder:AddToggle({text = "Auto-Rank", flag = "autofarm", callback = function(state)
 if state then
-getgenv().Autofarm = true
-		while Autofarm == true do
+getgenv().AutoRank = true
+		while AutoRank == true do
 game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged"):WaitForChild("unlockRank"):FireServer()
 task.wait()
 		end
 else
-getgenv().Autofarm = false
+getgenv().AutoRank = false
 end
 end})
 
