@@ -1,0 +1,142 @@
+if game:GetService("CoreGui"):FindFirstChild("ScreenGui") then
+    game:GetService("CoreGui").ScreenGui:Destroy()
+end
+
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Melohi/v3rm/main/uwuwareblue"))()
+local main = library:CreateWindow("Sword.xyz")
+local MiscellaneousFolder = main:AddFolder('Settings')
+
+local player = game.Players.LocalPlayer
+
+local xSizeSliderValue = 1
+local ySizeSliderValue = 0.8
+local zSizeSliderValue = 4
+
+local function UpdateHitboxSize(handle, x, y, z)
+    local hitbox = handle
+    local originalSize = hitbox.Size
+    hitbox.Size = Vector3.new(x, y, z)
+end
+
+local function AddSizeSliders(folder)
+
+
+    folder:AddSlider({
+        text = "X Size",
+        flag = "xSizeSlider",
+        value = xSizeSliderValue,
+        min = 0.1,
+        max = 10,
+        float = 0.1,
+        callback = function(value)
+            xSizeSliderValue = value
+        end
+    })
+
+    folder:AddSlider({
+        text = "Y Size",
+        flag = "ySizeSlider",
+        value = ySizeSliderValue,
+        min = 0.1,
+        max = 10,
+        float = 0.1,
+        callback = function(value)
+            ySizeSliderValue = value
+        end
+    })
+
+    folder:AddSlider({
+        text = "Z Size",
+        flag = "zSizeSlider",
+        value = zSizeSliderValue,
+        min = 0.1,
+        max = 10,
+        float = 0.1,
+        callback = function(value)
+            zSizeSliderValue = value
+        end
+    })
+end
+
+AddSizeSliders(MiscellaneousFolder)
+
+local hitboxViewEnabled = false
+local swordHitboxEnabled = false
+
+MiscellaneousFolder:AddToggle({
+    text = "Enabled",
+    flag = "flexos",
+    callback = function(state)
+        if state then
+            getgenv().shit = true
+            while getgenv().shit do
+                local player = game.Players.LocalPlayer
+                local equippedTool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+                
+                if equippedTool then
+                    local handle = equippedTool:FindFirstChild("Handle")
+                    
+                    if handle then
+                        UpdateHitboxSize(handle, xSizeSliderValue, ySizeSliderValue, zSizeSliderValue)
+                    end
+                end
+                
+                task.wait()
+            end
+        else
+            getgenv().shit = false
+        end
+    end
+})
+
+
+MiscellaneousFolder:AddToggle({
+    text = "Hitbox View",
+    flag = "autofarm",
+    callback = function(state)
+        if state then
+            getgenv().Enabled = true
+            while Enabled == true do
+                local equippedTool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+                if equippedTool then
+                    local handle = equippedTool:FindFirstChild("Handle")
+                    if handle then
+                        local selectionBox = handle:FindFirstChild("SelectionBox")
+                        if not selectionBox then
+                            selectionBox = Instance.new("SelectionBox")
+                            selectionBox.Parent = handle
+                            selectionBox.Adornee = handle
+                            selectionBox.LineThickness = 0.04
+                            selectionBox.Transparency = 0.4
+                        end
+                        selectionBox.Visible = true
+                    end
+                end
+                task.wait()
+            end
+        else
+            local equippedTool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+            if equippedTool then
+                local handle = equippedTool:FindFirstChild("Handle")
+                if handle then
+                    local selectionBox = handle:FindFirstChild("SelectionBox")
+                    if selectionBox then
+                        selectionBox.Visible = false
+                    end
+                end
+            end
+            getgenv().Enabled = false
+        end
+    end
+})
+
+main:AddBind({
+    text = "Toggle UI",
+    key = "LeftControl",
+    callback = function()
+        library:Close()
+    end
+})
+
+library:Init()
+
