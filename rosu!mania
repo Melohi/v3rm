@@ -4,7 +4,6 @@ end
 
 local vim = game:GetService('VirtualInputManager')
 local plr = game:GetService('Players').LocalPlayer
-local Root = plr.Character.HumanoidRootPart
 
 local excludedChildren = {
     "BubbleChat",
