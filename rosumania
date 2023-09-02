@@ -2,11 +2,10 @@ if game:GetService("CoreGui"):FindFirstChild("ScreenGui") then
     game:GetService("CoreGui").ScreenGui:Destroy()
 end
 
-
 local vim = game:GetService('VirtualInputManager')
-plr = game:GetService('Players').LocalPlayer
-Root = plr.Character.HumanoidRootPart
-    
+local plr = game:GetService('Players').LocalPlayer
+local Root = plr.Character.HumanoidRootPart
+
 local excludedChildren = {
     "BubbleChat",
     "Chat",
@@ -21,12 +20,6 @@ end
 local function releaseKey(key)
     vim:SendKeyEvent(false, key, false, game)
 end
-
-
-if game:GetService("CoreGui"):FindFirstChild("ScreenGui") then
-    game:GetService("CoreGui").ScreenGui:Destroy()
-end
-
 
 local function getValidChildrenNames(parent, excludedNames)
     local validNames = {}
@@ -48,115 +41,123 @@ end
 local validChildrenNames = getValidChildrenNames(game:GetService("Players").LocalPlayer.PlayerGui, excludedChildren)
 
 for _, name in ipairs(validChildrenNames) do
+    local UIS = game:GetService("UserInputService")
+    local mouse = plr:GetMouse()
 
-UIS = game:GetService("UserInputService")
-mouse = plr:GetMouse()
 
---First define the library
-local Library = loadstring(game:HttpGet("https://pastebin.com/raw/GE2vpe9i", true))()
+    local Library = loadstring(game:HttpGet("https://pastebin.com/raw/GE2vpe9i", true))()
 
--- Making a window
-local Window = Library:CreateWindow"Rosu! Mania"
 
-local keys = {}
-keys["0"] = 0x30;keys["1"] = 0x31;keys["2"] = 0x32;keys["3"] = 0x33;keys["4"] = 0x34;keys["5"] = 0x35;keys["6"] = 0x36;keys["7"] = 0x37;keys["8"] = 0x38;keys["9"] = 0x39;keys.A = 0x41;keys.B = 0x42;keys.C = 0x43;keys.D = 0x44;keys.E = 0x45;keys.F = 0x46;keys.G = 0x47;keys.H = 0x48;keys.I = 0x49;keys.J = 0x4A;keys.K = 0x4B;keys.L = 0x4C;keys.M = 0x4D;keys.N = 0x4E;keys.O = 0x4F;keys.P = 0x50;keys.Q = 0x51;keys.R = 0x52;keys.S = 0x53;keys.T = 0x54;keys.U = 0x55;keys.V = 0x56;keys.W = 0x57;keys.X = 0x58;keys.Y = 0x59;keys.Z = 0x5A;keys[";"] = 0xBA;
-function Hit(key, hold, release)
-    if not hold and not release then
-        pressKey(key)
-    elseif hold then
-        pressKey(key)
-    elseif release then
-        releaseKey(key)
-    end
-end
+    local Window = Library:CreateWindow"rosu! mania"
 
-if not _G.connections then
-	_G.connections = {}
-end
+    local offset = 0.05
 
-for i,v in pairs(_G.connections) do
-	v:Disconnect()
-end
-
-_G.connections = {}
-
-local AutoPlayToggle = Window:AddToggle({
-text = 'AutoPlay',
-flag = 'autoplay',
-state = false, -- Initialize as disabled
-callback = function(value)
-if state == true then
-        state = false
-        for i,v in pairs(_G.connections) do
-            v:Disconnect()
+    Window:AddSlider({
+        text = "Hit Timing Offset",
+        flag = "OffsetAmount",
+        value = whatthefuck,
+        min = 0.01,
+        max = 0.05,
+        float = 0.001,
+        callback = function(value)
+            offset = value
         end
+    })
+
+    function Hit(key, hold, release)
+        if not hold and not release then
+            pressKey(key)
+        elseif hold then
+            pressKey(key)
+        elseif release then
+            releaseKey(key)
+        end
+    end
+
+    if not _G.connections then
         _G.connections = {}
-    else
-        state = true
-        local mathtime = math.random(1,10)/100 + 0.01 + math.random(1,10)/100
-        for a,b in pairs(plr.PlayerGui[name].GameplayFrame.Tracks:GetChildren()) do
-            if b and b:IsA("Frame") then
-                local key
-                if b.Name == "Track1" then
-                    key = "A"
-                elseif b.Name == "Track2" then
-                    key = "S"
-                elseif b.Name == "Track3" then
-                    key = "L"
-                elseif b.Name == "Track4" then
-                    key = "K"
+    end
+
+    for i, v in pairs(_G.connections) do
+        v:Disconnect()
+    end
+
+    _G.connections = {}
+
+    local AutoPlayToggle = Window:AddToggle({
+        text = 'Enabled',
+        flag = 'autoplay',
+        state = false,
+        callback = function(value)
+            if state == true then
+                state = false
+                for i, v in pairs(_G.connections) do
+                    v:Disconnect()
                 end
-                local con = b.ChildAdded:Connect(function(child)
-                    if state == true then
-                        if child:IsA("Frame") then
-                            local hit = false
-                            while state == true and child and not hit do
-                                game:GetService('RunService').Stepped:wait()
-                                if child.Position.Y.Scale >= .98 then
-                                    hit = true
-                                    pressKey(key)  -- Replace Input.KeyPress with pressKey
-                                    task.wait(mathtime) -- Wait for a short duration
-                                    releaseKey(key)  -- Release the key
-                                end
-                                if not child then
-                                    hit = true
-                                end
-                            end
-                        elseif child:IsA("Folder") then
-                            local hit = false
-                            while state == true and child and not hit do
-                                game:GetService('RunService').Stepped:wait()
-                                if child.Head.Position.Y.Scale >= .98 then
-                                    pressKey(key)  -- Replace Input.KeyDown with pressKey
-                                end
-                                if child.Tail.Position.Y.Scale >= .98 then
-                                    releaseKey(key)  -- Replace Input.KeyUp with releaseKey
-                                    hit = true
-                                end
-                                if not child then
-                                    hit = true
-                                end
-                            end
+                _G.connections = {}
+            else
+                state = true
+                for a, b in pairs(plr.PlayerGui[name].GameplayFrame.Tracks:GetChildren()) do
+                    if b and b:IsA("Frame") then
+                        local key
+                        if b.Name == "Track1" then
+                            key = plr.PlayerGui[name].MENUS.OptionsFrame.Input.Keyboard.Lane1.Text
+                        elseif b.Name == "Track2" then
+                            key = plr.PlayerGui[name].MENUS.OptionsFrame.Input.Keyboard.Lane2.Text
+                        elseif b.Name == "Track3" then
+                            key = plr.PlayerGui[name].MENUS.OptionsFrame.Input.Keyboard.Lane3.Text
+                        elseif b.Name == "Track4" then
+                            key = plr.PlayerGui[name].MENUS.OptionsFrame.Input.Keyboard.Lane4.Text
                         end
+                        local con = b.ChildAdded:Connect(function(child)
+                            if state == true then
+                                if child:IsA("Frame") then
+                                    local hit = false
+                                    while state == true and child and not hit do
+                                        game:GetService('RunService').Stepped:wait()
+                                        if child.Position.Y.Scale >= .98 then
+                                            hit = true
+                                            pressKey(key)
+                                            task.wait(offset)
+                                            releaseKey(key)
+                                        end
+                                        if not child then
+                                            hit = true
+                                        end
+                                    end
+                                elseif child:IsA("Folder") then
+                                    local hit = false
+                                    while state == true and child and not hit do
+                                        game:GetService('RunService').Stepped:wait()
+                                        if child.Head.Position.Y.Scale >= .98 then
+                                            pressKey(key)
+                                        end
+                                        if child.Tail.Position.Y.Scale >= .98 then
+                                            releaseKey(key)
+                                            hit = true
+                                        end
+                                        if not child then
+                                            hit = true
+                                        end
+                                    end
+                                end
+                            end
+                        end)
+                        table.insert(_G.connections, con)
                     end
-                end)
-                table.insert(_G.connections,con)
+                end
+                game:GetService('RunService').Stepped:wait()
             end
         end
-        game:GetService('RunService').Stepped:wait()
-    end
-end
-})
+    })
 
+    Window:AddBind({
+        text = "Toggle UI",
+        key = "LeftControl",
+        callback = function()
+            Library:Close()
+        end
+    })
 
-Window:AddBind({
-    text = "Toggle UI",
-    key = "LeftControl",
-    callback = function()
-        Library:Close()
-    end
-})
-
-Library:Init()
-
+    Library:Init()
 end
