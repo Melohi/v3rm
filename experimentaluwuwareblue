@@ -1534,16 +1534,16 @@ function parent:AddList(option)
     option = typeof(option) == "table" and option or {}
     option.text = tostring(option.text)
     option.values = typeof(option.values) == "table" and option.values or {}
-    option.MultiSelect = option.MultiSelect == true -- Default to false if not specified
-    option.selectedValues = option.MultiSelect and {} or nil -- Store selected values for multiselect
-    option.value = option.MultiSelect and nil or tostring(option.value or option.values[1] or "")
+    option.MultiSelect = option.MultiSelect == true -- Enables multiselect functionality if true
+    option.selectedValues = {} -- Stores the currently selected options for multiselect
+    option.value = tostring(option.value or option.values[1] or "")
     option.callback = typeof(option.callback) == "function" and option.callback or function() end
     option.open = false
     option.type = "list"
     option.position = #self.options
     option.flag = option.flag or option.text
 
-    -- Helper to format selected values for display
+    -- Helper to update the selected values string
     local function formatSelected()
         if option.MultiSelect then
             return table.concat(option.selectedValues, ", ")
@@ -1555,30 +1555,45 @@ function parent:AddList(option)
     -- Initialize library flag
     library.flags[option.flag] = formatSelected()
 
-    -- Method to toggle multiselect values
+    -- Function to handle toggling multiselect values
     function option:ToggleValue(value)
-        if not option.MultiSelect then return end
-
-        for i, v in ipairs(self.selectedValues) do
-            if v == value then
-                table.remove(self.selectedValues, i) -- Deselect value
-                library.flags[self.flag] = formatSelected()
-                self.callback(self.selectedValues)
-                return
+        if option.MultiSelect then
+            for i, v in ipairs(self.selectedValues) do
+                if v == value then
+                    table.remove(self.selectedValues, i) -- Deselect the value
+                    library.flags[self.flag] = formatSelected()
+                    self.callback(self.selectedValues)
+                    return
+                end
             end
+            table.insert(self.selectedValues, value) -- Add the value
+            library.flags[self.flag] = formatSelected()
+            self.callback(self.selectedValues)
+        else
+            option.value = value -- Single select mode
+            library.flags[self.flag] = value
+            self.callback(value)
         end
-        table.insert(self.selectedValues, value) -- Select value
-        library.flags[self.flag] = formatSelected()
-        self.callback(self.selectedValues)
     end
 
-    -- Method to set a single value (for non-multiselect mode)
-    function option:SetValue(value)
-        if option.MultiSelect then return end
+    -- Function to display dropdown UI (mocked)
+    function option:RenderDropdown()
+        if option.open then
+            print("Dropdown Open:")
+            for _, v in ipairs(option.values) do
+                local isSelected = option.MultiSelect and table.find(option.selectedValues, v)
+                local prefix = isSelected and "[x] " or "[ ] "
+                print(prefix .. v)
+            end
+        else
+            print("Dropdown Closed: " .. formatSelected())
+        end
+    end
 
-        option.value = value
-        library.flags[self.flag] = value
-        option.callback(value)
+    -- Mock interaction for toggling dropdown and selecting items
+    function option:Select(value)
+        self:ToggleValue(value)
+        self:RenderDropdown()
     end
 
     table.insert(self.options, option)
