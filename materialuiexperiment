@@ -1487,16 +1487,15 @@ end
     end
 
     -- Function to clear the selected options
-    function DropdownLibrary:ClearSelection()
-        if MultiSelect then
-            SelectedOptions = {}  -- Reset for multi-select
-        else
-            DropdownValue = nil  -- Reset for single-select
-        end
-        UpdateDropdownTitle()
-        DropdownCallback(MultiSelect and SelectedOptions or DropdownValue)  -- Call the callback with cleared options
-        CreateDropdownOptions()  -- Refresh the options
-    end
+	 function DropdownLibrary:ClearSelection()
+	    if MultiSelect then
+	        SelectedOptions = {}
+	    else
+	        DropdownValue = nil
+	    end
+	    UpdateDropdownTitle()  -- Update the UI to reflect changes
+	end
+
 
     CreateDropdownOptions()
 
