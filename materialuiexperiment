@@ -1297,28 +1297,45 @@ local function CreateDropdownOptions()
 
         NewButton.Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 20)
 
-        -- Highlight if the option is pre-selected
+        -- Set the initial state of the button
         if MultiSelect and table.find(SelectedOptions, Value) then
-            NewButton.BackgroundColor3 = Theme.SelectedColor -- Adjust this to your selected color
+            NewButton.BackgroundColor3 = Theme.SelectedColor -- Highlight selected options
         elseif not MultiSelect and DropdownValue == Value then
             NewButton.BackgroundColor3 = Theme.SelectedColor
+        else
+            NewButton.BackgroundColor3 = Theme.NormalColor -- Default button color
         end
 
+        -- Handle button click
         NewButton.MouseButton1Down:Connect(function()
             if MultiSelect then
                 if table.find(SelectedOptions, Value) then
+                    -- Deselect the option
                     table.remove(SelectedOptions, table.find(SelectedOptions, Value))
                     NewButton.BackgroundColor3 = Theme.NormalColor
                 else
+                    -- Select the option
                     table.insert(SelectedOptions, Value)
                     NewButton.BackgroundColor3 = Theme.SelectedColor
                 end
                 UpdateDropdownTitle()
                 DropdownCallback(SelectedOptions)
             else
+                -- Single-select: Update DropdownValue and reset other buttons
                 DropdownValue = Value
+
+                -- Reset all other buttons to normal color
+                for _, sibling in ipairs(DropdownContent:GetChildren()) do
+                    if sibling:IsA("TextButton") then
+                        sibling.BackgroundColor3 = Theme.NormalColor
+                    end
+                end
+
+                -- Highlight the selected button
+                NewButton.BackgroundColor3 = Theme.SelectedColor
+
                 UpdateDropdownTitle()
-                DropdownCallback(Value)
+                DropdownCallback(DropdownValue)
             end
         end)
     end
