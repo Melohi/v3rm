@@ -1376,19 +1376,23 @@ function OptionLibrary.Dropdown(DropdownConfig)
         end
     end
 
-	function DropdownLibrary:UpdateSelectedOptions(Value)
-	    if MultiSelect then
-	        -- Assume `Value` is a table of selected options
-	        SelectedOptions = Value or {}
-	        UpdateDropdownTitle()
-	        DropdownCallback(SelectedOptions)
-	    else
-	        -- Assume `Value` is a single selection
-	        DropdownValue = Value
-	        UpdateDropdownTitle()
-	        DropdownCallback(DropdownValue)
-	    end
-	end
+function DropdownLibrary:UpdateSelectedOptions(Value)
+    if MultiSelect then
+        -- Update selected options for MultiSelect mode
+        SelectedOptions = Value or {}
+        UpdateDropdownTitle()
+        DropdownCallback(SelectedOptions)
+    else
+        -- Update selected value for single-select mode
+        DropdownValue = Value
+        UpdateDropdownTitle()
+        DropdownCallback(DropdownValue)
+    end
+
+    -- Refresh dropdown options to reflect the current state
+    CreateDropdownOptions()
+end
+
 
     function DropdownLibrary:SetText(Value)
         if type(Value) == "string" then
