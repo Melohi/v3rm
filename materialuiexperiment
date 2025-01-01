@@ -1205,7 +1205,8 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownOptions = DropdownConfig.Options or {}
     local Menu = DropdownConfig.Menu or {}
     local MultiSelect = DropdownConfig.MultiSelect or false
-    local SelectedOptions = {}
+    local DefaultOptions = DropdownConfig.DefaultOptions or {}
+    local SelectedOptions = MultiSelect and table.clone(DefaultOptions) or {}
 
     local Dropdown = Objects.new("Frame")
     Dropdown.Name = "Dropdown"
@@ -1222,7 +1223,7 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownTitle = Objects.new("Button")
     DropdownTitle.Name = "Title"
     DropdownTitle.Font = Enum.Font.GothamSemibold
-    DropdownTitle.Text = DropdownValue and DropdownText..": "..DropdownValue or DropdownText
+    DropdownTitle.Text = DropdownValue and DropdownText .. ": " .. DropdownValue or DropdownText
     DropdownTitle.TextColor3 = Theme.DropdownAccent
     DropdownTitle.TextTransparency = 1
     DropdownTitle.TextSize = 14
@@ -1260,7 +1261,7 @@ function OptionLibrary.Dropdown(DropdownConfig)
 
     local NumberOfOptions = #DropdownOptions
     local DropToggle = false
-    local DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions*20) + ((NumberOfOptions - 1) * 5))
+    local DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions * 20) + ((NumberOfOptions - 1) * 5))
 
     local DropdownList = Objects.new("UIListLayout")
     DropdownList.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1280,7 +1281,6 @@ function OptionLibrary.Dropdown(DropdownConfig)
         -- Clear existing options and their connections
         for _, child in ipairs(DropdownContent:GetChildren()) do
             if child:IsA("TextButton") then
-                -- Disconnect all connections before destroying
                 for _, connection in pairs(getconnections(child.MouseButton1Down)) do
                     connection:Disconnect()
                 end
@@ -1296,7 +1296,14 @@ function OptionLibrary.Dropdown(DropdownConfig)
             }, DropdownContent)
 
             NewButton.Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,20)
-            
+
+            -- Reflect selection state
+            if MultiSelect and table.find(SelectedOptions, Value) then
+                NewButton.BackgroundColor3 = Theme.SelectedOptionColor -- Customize for selected state
+            elseif not MultiSelect and DropdownValue == Value then
+                NewButton.BackgroundColor3 = Theme.SelectedOptionColor
+            end
+
             NewButton.MouseButton1Down:Connect(function()
                 if MultiSelect then
                     if table.find(SelectedOptions, Value) then
@@ -1311,12 +1318,15 @@ function OptionLibrary.Dropdown(DropdownConfig)
                     UpdateDropdownTitle()
                     DropdownCallback(Value)
                 end
+
+                -- Refresh options to reflect the new state
+                CreateDropdownOptions()
             end)
         end)
 
         -- Update dropdown size
         NumberOfOptions = #DropdownOptions
-        DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions*20) + ((NumberOfOptions - 1) * 5))
+        DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions * 20) + ((NumberOfOptions - 1) * 5))
     end
 
     CreateDropdownOptions()
@@ -1344,55 +1354,21 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownLibrary = {}
 
     function DropdownLibrary:Refresh()
-        -- Reset selections
         if MultiSelect then
-            SelectedOptions = {}
+            SelectedOptions = table.clone(DefaultOptions)
         else
-            DropdownValue = nil
+            DropdownValue = DropdownConfig.Default
         end
 
-        -- Reset UI state
         DropToggle = false
-        
-        -- Reset visuals
+
         TweenService:Create(DropdownButton, TweenInfo.new(0.15), {Rotation = 0}):Play()
         TweenService:Create(DropdownContent, TweenInfo.new(0.15), {Size = UDim2.fromScale(1,0)}):Play()
         TweenService:Create(Dropdown, TweenInfo.new(0.15), {Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,30)}):Play()
 
-        -- Clear and recreate all options
         CreateDropdownOptions()
-        
-        -- Reset dropdown title
         UpdateDropdownTitle()
-
-        -- Return to default if it exists
-        if DropdownConfig.Default then
-            if MultiSelect and type(DropdownConfig.Default) == "table" then
-                SelectedOptions = table.clone(DropdownConfig.Default)
-            else
-                DropdownValue = DropdownConfig.Default
-            end
-            UpdateDropdownTitle()
-        end
     end
-
-function DropdownLibrary:UpdateSelectedOptions(Value)
-    if MultiSelect then
-        -- Update selected options for MultiSelect mode
-        SelectedOptions = Value or {}
-        UpdateDropdownTitle()
-        DropdownCallback(SelectedOptions)
-    else
-        -- Update selected value for single-select mode
-        DropdownValue = Value
-        UpdateDropdownTitle()
-        DropdownCallback(DropdownValue)
-    end
-
-    -- Refresh dropdown options to reflect the current state
-    CreateDropdownOptions()
-end
-
 
     function DropdownLibrary:SetText(Value)
         if type(Value) == "string" then
@@ -1412,14 +1388,12 @@ end
 
     function DropdownLibrary:SetOptions(NewOptions)
         DropdownOptions = NewOptions or {}
-        
         if MultiSelect then
             SelectedOptions = {}
         else
             DropdownValue = nil
         end
-        
-        -- Clear and recreate all options
+
         CreateDropdownOptions()
         UpdateDropdownTitle()
 
@@ -1437,17 +1411,17 @@ end
         return DropdownOptions
     end
 
-    if DropdownConfig.Default then
-        if MultiSelect and type(DropdownConfig.Default) == "table" then
-            SelectedOptions = DropdownConfig.Default
-        else
-            DropdownValue = DropdownConfig.Default
-        end
+    if DefaultOptions and MultiSelect then
+        SelectedOptions = DefaultOptions
+        UpdateDropdownTitle()
+    elseif DropdownConfig.Default then
+        DropdownValue = DropdownConfig.Default
         UpdateDropdownTitle()
     end
 
     return DropdownLibrary
 end
+
 
 
 
