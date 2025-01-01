@@ -1198,7 +1198,7 @@ function Material.Load(Config)
 			return SectionLibrary
 	end
 
-  function OptionLibrary.Dropdown(DropdownConfig)
+function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownText = DropdownConfig.Text or "nil dropdown"
     local DropdownValue = DropdownConfig.Default
     local DropdownCallback = DropdownConfig.Callback or function() print("nil dropdown") end
@@ -1277,20 +1277,18 @@ function Material.Load(Config)
     end
 
     local function CreateDropdownOptions()
-        -- Clear existing options
         for _, child in ipairs(DropdownContent:GetChildren()) do
             if child:IsA("TextButton") then
                 child:Destroy()
             end
         end
 
-        -- Create new options
         table.foreach(DropdownOptions, function(_, Value)
             local NewButton = CreateNewButton({
                 Text = Value,
                 Callback = function() end
             }, DropdownContent)
-            
+
             NewButton.Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,20)
             NewButton.MouseButton1Down:Connect(function()
                 if MultiSelect then
@@ -1334,6 +1332,39 @@ function Material.Load(Config)
 
     local DropdownLibrary = {}
 
+    function DropdownLibrary:Refresh()
+        -- Reset selections
+        if MultiSelect then
+            SelectedOptions = {}
+        else
+            DropdownValue = nil
+        end
+
+        -- Reset UI state
+        DropToggle = false
+        
+        -- Reset visuals
+        TweenService:Create(DropdownButton, TweenInfo.new(0.15), {Rotation = 0}):Play()
+        TweenService:Create(DropdownContent, TweenInfo.new(0.15), {Size = UDim2.fromScale(1,0)}):Play()
+        TweenService:Create(Dropdown, TweenInfo.new(0.15), {Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,30)}):Play()
+
+        -- Reset dropdown title
+        UpdateDropdownTitle()
+
+        -- Recreate options while maintaining current options list
+        CreateDropdownOptions()
+
+        -- Return to default if it exists
+        if DropdownConfig.Default then
+            if MultiSelect and type(DropdownConfig.Default) == "table" then
+                SelectedOptions = table.clone(DropdownConfig.Default)
+            else
+                DropdownValue = DropdownConfig.Default
+            end
+            UpdateDropdownTitle()
+        end
+    end
+
     function DropdownLibrary:UpdateText(NewText)
         DropdownText = NewText
         UpdateDropdownTitle()
@@ -1360,7 +1391,6 @@ function Material.Load(Config)
         NumberOfOptions = #DropdownOptions
         DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions*20) + ((NumberOfOptions - 1) * 5))
         
-        -- Reset selections
         if MultiSelect then
             SelectedOptions = {}
         else
@@ -1395,6 +1425,7 @@ function Material.Load(Config)
 
     return DropdownLibrary
 end
+
 
 
 		function OptionLibrary.ChipSet(ChipSetConfig)
