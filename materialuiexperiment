@@ -1278,9 +1278,10 @@ function OptionLibrary.Dropdown(DropdownConfig)
     end
 
 local function CreateDropdownOptions()
-    -- Clear existing options
+    -- Clear existing options and their connections
     for _, child in ipairs(DropdownContent:GetChildren()) do
         if child:IsA("TextButton") then
+            -- Disconnect all connections before destroying
             for _, connection in pairs(getconnections(child.MouseButton1Down)) do
                 connection:Disconnect()
             end
@@ -1288,7 +1289,7 @@ local function CreateDropdownOptions()
         end
     end
 
-    -- Create new options
+    -- Recreate dropdown options from DropdownOptions
     for _, Value in ipairs(DropdownOptions) do
         local NewButton = CreateNewButton({
             Text = Value,
@@ -1296,54 +1297,38 @@ local function CreateDropdownOptions()
         }, DropdownContent)
 
         NewButton.Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 20)
-
-        -- Set the initial state of the button
-        if MultiSelect and table.find(SelectedOptions, Value) then
-            NewButton.BackgroundColor3 = Theme.SelectedColor -- Highlight selected options
-        elseif not MultiSelect and DropdownValue == Value then
-            NewButton.BackgroundColor3 = Theme.SelectedColor
-        else
-            NewButton.BackgroundColor3 = Theme.NormalColor -- Default button color
-        end
-
-        -- Handle button click
+        
         NewButton.MouseButton1Down:Connect(function()
             if MultiSelect then
+                -- Toggle selection
                 if table.find(SelectedOptions, Value) then
-                    -- Deselect the option
                     table.remove(SelectedOptions, table.find(SelectedOptions, Value))
-                    NewButton.BackgroundColor3 = Theme.NormalColor
                 else
-                    -- Select the option
                     table.insert(SelectedOptions, Value)
-                    NewButton.BackgroundColor3 = Theme.SelectedColor
                 end
                 UpdateDropdownTitle()
                 DropdownCallback(SelectedOptions)
             else
-                -- Single-select: Update DropdownValue and reset other buttons
+                -- Single selection
                 DropdownValue = Value
-
-                -- Reset all other buttons to normal color
-                for _, sibling in ipairs(DropdownContent:GetChildren()) do
-                    if sibling:IsA("TextButton") then
-                        sibling.BackgroundColor3 = Theme.NormalColor
-                    end
-                end
-
-                -- Highlight the selected button
-                NewButton.BackgroundColor3 = Theme.SelectedColor
-
                 UpdateDropdownTitle()
-                DropdownCallback(DropdownValue)
+                DropdownCallback(Value)
             end
         end)
+
+        -- Update button appearance for selected options
+        if MultiSelect and table.find(SelectedOptions, Value) or (not MultiSelect and DropdownValue == Value) then
+            NewButton.BackgroundColor3 = Theme.DropdownAccent -- Highlight selected
+        else
+            NewButton.BackgroundColor3 = Theme.Dropdown -- Default color
+        end
     end
 
     -- Update dropdown size
     NumberOfOptions = #DropdownOptions
     DropdownSize = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, (NumberOfOptions * 20) + ((NumberOfOptions - 1) * 5))
 end
+
 
 
     CreateDropdownOptions()
