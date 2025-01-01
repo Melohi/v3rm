@@ -1413,7 +1413,7 @@ end
         return DropdownOptions
     end
 
-    if DefaultOptions and MultiSelect then
+    if DefaultOptions then
         SelectedOptions = DefaultOptions
         UpdateDropdownTitle()
     elseif DropdownConfig.Default then
