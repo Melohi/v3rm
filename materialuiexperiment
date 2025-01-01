@@ -1277,44 +1277,47 @@ function OptionLibrary.Dropdown(DropdownConfig)
     end
 
     local function CreateDropdownOptions()
-    -- First clear all existing content
-    for _, child in ipairs(DropdownContent:GetChildren()) do
-        if child:IsA("TextButton") then
-            child:Destroy()
-        end
-    end
-
-    -- Create fresh options with current DropdownOptions
-    for _, Value in ipairs(DropdownOptions) do
-        local NewButton = CreateNewButton({
-            Text = Value,
-            Callback = function() end
-        }, DropdownContent)
-
-        NewButton.Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,20)
-        NewButton.Text = Value  -- Explicitly set the text
-        
-        NewButton.MouseButton1Down:Connect(function()
-            if MultiSelect then
-                if table.find(SelectedOptions, Value) then
-                    table.remove(SelectedOptions, table.find(SelectedOptions, Value))
-                else
-                    table.insert(SelectedOptions, Value)
+        -- Clear existing options and their connections
+        for _, child in ipairs(DropdownContent:GetChildren()) do
+            if child:IsA("TextButton") then
+                -- Disconnect all connections before destroying
+                for _, connection in pairs(getconnections(child.MouseButton1Down)) do
+                    connection:Disconnect()
                 end
-                UpdateDropdownTitle()
-                DropdownCallback(SelectedOptions)
-            else
-                DropdownValue = Value
-                UpdateDropdownTitle()
-                DropdownCallback(Value)
+                child:Destroy()
             end
-        end)
-    end
+        end
 
-    -- Update sizes
-    NumberOfOptions = #DropdownOptions
-    DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions*20) + ((NumberOfOptions - 1) * 5))
-end
+        -- Create new options
+        table.foreach(DropdownOptions, function(_, Value)
+            local NewButton = CreateNewButton({
+                Text = Value,
+                Callback = function() end
+            }, DropdownContent)
+
+            NewButton.Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,20)
+            
+            NewButton.MouseButton1Down:Connect(function()
+                if MultiSelect then
+                    if table.find(SelectedOptions, Value) then
+                        table.remove(SelectedOptions, table.find(SelectedOptions, Value))
+                    else
+                        table.insert(SelectedOptions, Value)
+                    end
+                    UpdateDropdownTitle()
+                    DropdownCallback(SelectedOptions)
+                else
+                    DropdownValue = Value
+                    UpdateDropdownTitle()
+                    DropdownCallback(Value)
+                end
+            end)
+        end)
+
+        -- Update dropdown size
+        NumberOfOptions = #DropdownOptions
+        DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions*20) + ((NumberOfOptions - 1) * 5))
+    end
 
     CreateDropdownOptions()
 
@@ -1394,31 +1397,32 @@ end
         return MultiSelect and SelectedOptions or DropdownValue
     end
 
-function DropdownLibrary:SetOptions(NewOptions)
-    -- Clear the old options array and create a new one
-    DropdownOptions = table.clone(NewOptions) or {}
-    
-    -- Reset selections
-    if MultiSelect then
-        SelectedOptions = {}
-    else
-        DropdownValue = nil
-    end
-    
-    -- Recreate all options with the new array
-    CreateDropdownOptions()
-    UpdateDropdownTitle()
+    function DropdownLibrary:SetOptions(NewOptions)
+        DropdownOptions = NewOptions or {}
+        
+        if MultiSelect then
+            SelectedOptions = {}
+        else
+            DropdownValue = nil
+        end
+        
+        -- Clear and recreate all options
+        CreateDropdownOptions()
+        UpdateDropdownTitle()
 
-    -- Update dropdown size if it's open
-    if DropToggle then
-        TweenService:Create(Dropdown, TweenInfo.new(0.15), {
-            Size = DropdownSize + UDim2.fromOffset(0,35)
-        }):Play()
-        TweenService:Create(DropdownContent, TweenInfo.new(0.15), {
-            Size = DropdownSize
-        }):Play()
+        if DropToggle then
+            TweenService:Create(Dropdown, TweenInfo.new(0.15), {
+                Size = DropdownSize + UDim2.fromOffset(0,35)
+            }):Play()
+            TweenService:Create(DropdownContent, TweenInfo.new(0.15), {
+                Size = DropdownSize
+            }):Play()
+        end
     end
-end
+
+    function DropdownLibrary:GetOptions()
+        return DropdownOptions
+    end
 
     if DropdownConfig.Default then
         if MultiSelect and type(DropdownConfig.Default) == "table" then
