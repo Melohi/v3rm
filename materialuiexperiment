@@ -1204,121 +1204,142 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownCallback = DropdownConfig.Callback or function() print("nil dropdown") end
     local DropdownOptions = DropdownConfig.Options or {}
     local Menu = DropdownConfig.Menu or {}
--- Initialize SelectedOptions correctly based on MultiSelect
-local MultiSelect = DropdownConfig.MultiSelect or false
-local SelectedOptions = {}  -- Empty table for MultiSelect initially
+	local MultiSelect = DropdownConfig.MultiSelect or false
+	local SelectedOptions = {}  -- Empty table for MultiSelect initially
+	
+	-- If MultiSelect is false, assign the first default option
+	if not MultiSelect and #DefaultOptions > 0 then
+	    DropdownValue = DropdownValue or DefaultOptions[1]  -- Assign the first DefaultOption if not set
+	else
+	    -- If MultiSelect is true, initialize SelectedOptions with DefaultOptions if available
+	    if MultiSelect and #DefaultOptions > 0 then
+	        -- Copy DefaultOptions into SelectedOptions
+	        SelectedOptions = {}
+	        for _, option in ipairs(DefaultOptions) do
+	            table.insert(SelectedOptions, option)
+	        end
+	    end
+	end
 
--- If MultiSelect is false, assign the first default option
-if not MultiSelect and #DefaultOptions > 0 then
-    DropdownValue = DropdownValue or DefaultOptions[1]  -- Assign the first DefaultOption if not set
-else
-    -- If MultiSelect is true, initialize SelectedOptions with DefaultOptions if available
-    if MultiSelect and #DefaultOptions > 0 then
-        SelectedOptions = table.clone(DefaultOptions)  -- Copy DefaultOptions into SelectedOptions
-    end
-end
 
--- Dropdown UI Elements Creation
-local Dropdown = Objects.new("Frame")
-Dropdown.Name = "Dropdown"
-Dropdown.Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,30)
-Dropdown.Parent = PageContentFrame
+    local Dropdown = Objects.new("Frame")
+    Dropdown.Name = "Dropdown"
+    Dropdown.Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 30)
+    Dropdown.Parent = PageContentFrame
 
-local DropdownBar = Objects.new("Round")
-DropdownBar.Name = "TitleBar"
-DropdownBar.Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,30)
-DropdownBar.ImageColor3 = Theme.Dropdown
-DropdownBar.ImageTransparency = 1
-DropdownBar.Parent = Dropdown
+    local DropdownBar = Objects.new("Round")
+    DropdownBar.Name = "TitleBar"
+    DropdownBar.Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 30)
+    DropdownBar.ImageColor3 = Theme.Dropdown
+    DropdownBar.ImageTransparency = 1
+    DropdownBar.Parent = Dropdown
 
-local DropdownTitle = Objects.new("Button")
-DropdownTitle.Name = "Title"
-DropdownTitle.Font = Enum.Font.GothamSemibold
-DropdownTitle.Text = DropdownValue and DropdownText..": "..DropdownValue or DropdownText
-DropdownTitle.TextColor3 = Theme.DropdownAccent
-DropdownTitle.TextTransparency = 1
-DropdownTitle.TextSize = 14
-DropdownTitle.Parent = DropdownBar
+    local DropdownTitle = Objects.new("Button")
+    DropdownTitle.Name = "Title"
+    DropdownTitle.Font = Enum.Font.GothamSemibold
+    DropdownTitle.Text = DropdownValue and DropdownText .. ": " .. DropdownValue or DropdownText
+    DropdownTitle.TextColor3 = Theme.DropdownAccent
+    DropdownTitle.TextTransparency = 1
+    DropdownTitle.TextSize = 14
+    DropdownTitle.Parent = DropdownBar
 
-local DropdownToggle = Objects.new("Round")
-DropdownToggle.Name = "Container"
-DropdownToggle.Size = UDim2.fromOffset(24,24)
-DropdownToggle.Position = UDim2.fromScale(1,0.5) - UDim2.fromOffset(27,12)
-DropdownToggle.ImageColor3 = Theme.DropdownAccent
-DropdownToggle.ImageTransparency = 1
-DropdownToggle.Parent = DropdownBar
+    local DropdownToggle = Objects.new("Round")
+    DropdownToggle.Name = "Container"
+    DropdownToggle.Size = UDim2.fromOffset(24, 24)
+    DropdownToggle.Position = UDim2.fromScale(1, 0.5) - UDim2.fromOffset(27, 12)
+    DropdownToggle.ImageColor3 = Theme.DropdownAccent
+    DropdownToggle.ImageTransparency = 1
+    DropdownToggle.Parent = DropdownBar
 
-local DropdownButton = Objects.new("Round")
-DropdownButton.Name = "Drop"
-DropdownButton.Image = "http://www.roblox.com/asset/?id=5574299686"
-DropdownButton.ScaleType = Enum.ScaleType.Stretch
-DropdownButton.Size = UDim2.fromScale(1,1) - UDim2.fromOffset(4,4)
-DropdownButton.Position = UDim2.fromOffset(2,2)
-DropdownButton.ImageColor3 = Theme.DropdownAccent
-DropdownButton.ImageTransparency = 1
-DropdownButton.Parent = DropdownToggle
+    local DropdownButton = Objects.new("Round")
+    DropdownButton.Name = "Drop"
+    DropdownButton.Image = "http://www.roblox.com/asset/?id=5574299686"
+    DropdownButton.ScaleType = Enum.ScaleType.Stretch
+    DropdownButton.Size = UDim2.fromScale(1, 1) - UDim2.fromOffset(4, 4)
+    DropdownButton.Position = UDim2.fromOffset(2, 2)
+    DropdownButton.ImageColor3 = Theme.DropdownAccent
+    DropdownButton.ImageTransparency = 1
+    DropdownButton.Parent = DropdownToggle
 
--- Title animation effects
-TweenService:Create(DropdownBar, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
-TweenService:Create(DropdownTitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-TweenService:Create(DropdownToggle, TweenInfo.new(0.5), {ImageTransparency = 0.8}):Play()
-TweenService:Create(DropdownButton, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+    TweenService:Create(DropdownBar, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
+    TweenService:Create(DropdownTitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+    TweenService:Create(DropdownToggle, TweenInfo.new(0.5), {ImageTransparency = 0.8}):Play()
+    TweenService:Create(DropdownButton, TweenInfo.new(0.5), {ImageTransparency = 0}):Play()
 
-local DropdownContent = Objects.new("Frame")
-DropdownContent.Name = "Content"
-DropdownContent.Size = UDim2.fromScale(1,0)
-DropdownContent.Position = UDim2.fromOffset(0,35)
-DropdownContent.ClipsDescendants = true
-DropdownContent.Parent = Dropdown
+    local DropdownContent = Objects.new("Frame")
+    DropdownContent.Name = "Content"
+    DropdownContent.Size = UDim2.fromScale(1, 0)
+    DropdownContent.Position = UDim2.fromOffset(0, 35)
+    DropdownContent.ClipsDescendants = true
+    DropdownContent.Parent = Dropdown
 
-local NumberOfOptions = #DropdownOptions
-local DropToggle = false
-local DropdownSize = UDim2.fromScale(1,0) + UDim2.fromOffset(0,(NumberOfOptions*20) + ((NumberOfOptions - 1) * 5))
+    local NumberOfOptions = #DropdownOptions
+    local DropToggle = false
+    local DropdownSize = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, (NumberOfOptions * 20) + ((NumberOfOptions - 1) * 5))
 
-local DropdownList = Objects.new("UIListLayout")
-DropdownList.SortOrder = Enum.SortOrder.LayoutOrder
-DropdownList.Padding = UDim.new(0,5)
-DropdownList.Parent = DropdownContent
+    local DropdownList = Objects.new("UIListLayout")
+    DropdownList.SortOrder = Enum.SortOrder.LayoutOrder
+    DropdownList.Padding = UDim.new(0, 5)
+    DropdownList.Parent = DropdownContent
 
--- Update the dropdown title based on selected options
 local function UpdateDropdownTitle()
     if MultiSelect then
-        -- Show selected options separated by commas or "None" if empty
+        -- If MultiSelect is true, concatenate selected options or show "None"
         local selectedText = (#SelectedOptions > 0) and table.concat(SelectedOptions, ", ") or "None"
         DropdownTitle.Text = DropdownText .. ": " .. selectedText
     else
-        -- Show DropdownValue if set, or "None" if not
+        -- Single-selection mode
         DropdownTitle.Text = DropdownText .. ": " .. (DropdownValue or "None")
     end
 end
 
--- Create dropdown options
-table.foreach(DropdownOptions, function(_, Value)
-    local NewButton = CreateNewButton({
-        Text = Value,
-        Callback = function() end
-    }, DropdownContent)
 
-    NewButton.Size = UDim2.fromScale(1,0) + UDim2.fromOffset(0,20)
-    NewButton.MouseButton1Down:Connect(function()
-        if MultiSelect then
-            -- Toggle the selection of options in MultiSelect mode
-            if table.find(SelectedOptions, Value) then
-                table.remove(SelectedOptions, table.find(SelectedOptions, Value))  -- Deselect
-            else
-                table.insert(SelectedOptions, Value)  -- Select
+
+    local function CreateDropdownOptions()
+    -- Clear existing options and their connections
+    for _, child in ipairs(DropdownContent:GetChildren()) do
+        if child:IsA("TextButton") then
+            -- Disconnect all connections before destroying
+            for _, connection in pairs(getconnections(child.MouseButton1Down)) do
+                connection:Disconnect()
             end
-            UpdateDropdownTitle()  -- Update the dropdown title with the selected options
-            DropdownCallback(SelectedOptions)  -- Callback with selected options
-        else
-            -- Single selection for non-MultiSelect
-            DropdownValue = Value
-            UpdateDropdownTitle()
-            DropdownCallback(Value)
+            child:Destroy()
         end
-    end)
-end)
+    end
 
+    -- Check if DropdownOptions is populated
+    if #DropdownOptions == 0 then
+        print("No options to create.")  -- Debug print
+        return
+    end
+
+    -- Recreate dropdown options from DropdownOptions
+    for _, Value in ipairs(DropdownOptions) do
+        print("Creating button for option: ", Value)  -- Debug print
+        local NewButton = CreateNewButton({
+            Text = Value,
+            Callback = function() end
+        }, DropdownContent)
+
+        NewButton.Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 20)
+
+        NewButton.MouseButton1Down:Connect(function()
+            if MultiSelect then
+                -- Toggle selection
+                if table.find(SelectedOptions, Value) then
+                    table.remove(SelectedOptions, table.find(SelectedOptions, Value))
+                else
+                    table.insert(SelectedOptions, Value)
+                end
+                UpdateDropdownTitle()
+                DropdownCallback(SelectedOptions)
+            else
+                -- Single selection
+                DropdownValue = Value
+                UpdateDropdownTitle()
+                DropdownCallback(Value)
+            end
+        end)
 
         -- Update button appearance for selected options
         if (MultiSelect and table.find(SelectedOptions, Value)) or (not MultiSelect and DropdownValue == Value) then
