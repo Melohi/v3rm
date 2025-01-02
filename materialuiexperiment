@@ -1354,31 +1354,27 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownLibrary = {}
 
 function DropdownLibrary:Refresh()
-    -- Reset the selected options or dropdown value based on MultiSelect
+    -- Reset selected options or value based on MultiSelect
     if MultiSelect then
-        -- Reset to the default options
         SelectedOptions = table.clone(DefaultOptions)
     else
-        -- Reset to the default value
         DropdownValue = DropdownConfig.Default
     end
 
-    DropToggle = false -- Close the dropdown (ensure it's set to closed)
+    -- Close the dropdown if it is open
+    DropToggle = false
 
-    -- Smoothly reset the dropdown button and content size back to initial state
-    TweenService:Create(DropdownButton, TweenInfo.new(0.15), {Rotation = 0}):Play() -- Reset button rotation
-    TweenService:Create(DropdownContent, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0)}):Play() -- Close dropdown content
-    TweenService:Create(Dropdown, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 30)}):Play() -- Close the dropdown frame
+    -- Animate the dropdown closing
+    TweenService:Create(DropdownButton, TweenInfo.new(0.15), {Rotation = 0}):Play()
+    TweenService:Create(DropdownContent, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0)}):Play()
+    TweenService:Create(Dropdown, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 30)}):Play()
 
-    -- Ensure all options are updated (recreate options if needed)
+    -- Recreate dropdown options to reflect the current state
     CreateDropdownOptions()
 
-    -- Refresh the title text based on current selection
+    -- Update the title to reflect the current selection
     UpdateDropdownTitle()
-
-    -- Optional: If you need to reset other UI elements or perform additional actions, do it here.
 end
-
 
     function DropdownLibrary:SetText(Value)
         if type(Value) == "string" then
