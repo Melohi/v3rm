@@ -1209,19 +1209,13 @@ function OptionLibrary.Dropdown(DropdownConfig)
 
    local SelectedOptions = MultiSelect and table.clone(DefaultOptions) or {}
 
-    -- If MultiSelect is false, set the default value for DropdownValue
-	if not MultiSelect then
-	    -- Single-selection mode
-	    if DropdownValue or #DefaultOptions > 0 then
-	        DropdownValue = DropdownValue or DefaultOptions[1]
-	    end
+	if MultiSelect then
+	    SelectedOptions = table.clone(DefaultOptions) -- Clone DefaultOptions into SelectedOptions
 	else
-	    -- Multi-selection mode
-	    if not DropdownValue or #DropdownValue == 0 then
-	        DropdownValue = DefaultOptions or {}
+	    if not DropdownValue and #DefaultOptions > 0 then
+	        DropdownValue = DefaultOptions[1] -- Assign the first default option if DropdownValue is nil
 	    end
 	end
-
 
     local Dropdown = Objects.new("Frame")
     Dropdown.Name = "Dropdown"
