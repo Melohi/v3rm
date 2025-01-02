@@ -2323,11 +2323,11 @@ end
 			end
 
 			function ToggleLibrary:SetState(Value)
-			    local ToggleDefault = Value  -- Declare locally within the scope of each toggle
+			    self.ToggleDefault = Value  -- Store the state on the object itself (preserving state between calls)
 			
 			    -- Update the tween for the toggle's position and color
-			    local targetPosition = ToggleDefault and UDim2.fromScale(1, 0.5) or UDim2.fromScale(0, 0.5)
-			    local targetColor = ToggleDefault and Theme.Toggle or Theme.ToggleAccent
+			    local targetPosition = self.ToggleDefault and UDim2.fromScale(1, 0.5) or UDim2.fromScale(0, 0.5)
+			    local targetColor = self.ToggleDefault and Theme.Toggle or Theme.ToggleAccent
 			
 			    local tween = TweenService:Create(Dot, TweenInfo.new(0.15), {
 			        Position = targetPosition - UDim2.fromOffset(8, 8),
@@ -2337,8 +2337,9 @@ end
 			    tween:Play()
 			
 			    -- Call the callback with the new toggle state (local state for each toggle)
-			    ToggleCallback(ToggleDefault)
+			    ToggleCallback(self.ToggleDefault)
 			end
+
 
 
 			function ToggleLibrary:GetState()
