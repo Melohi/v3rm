@@ -1204,15 +1204,22 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownCallback = DropdownConfig.Callback or function() print("nil dropdown") end
     local DropdownOptions = DropdownConfig.Options or {}
     local Menu = DropdownConfig.Menu or {}
-    local MultiSelect = DropdownConfig.MultiSelect
+    local MultiSelect = DropdownConfig.MultiSelect or false
     local DefaultOptions = DropdownConfig.DefaultOptions or {}
-    local SelectedOptions = {}
 
-	if MultiSelect then
-	    SelectedOptions = table.clone(DefaultOptions)
+   local SelectedOptions = MultiSelect and table.clone(DefaultOptions) or {}
+
+    -- If MultiSelect is false, set the default value for DropdownValue
+	if not MultiSelect then
+	    -- Single-selection mode
+	    if DropdownValue or #DefaultOptions > 0 then
+	        DropdownValue = DropdownValue or DefaultOptions[1]
+	    end
 	else
-	    DropdownValue = DropdownValue or DefaultOptions[1]
-	    SelectedOptions = {DropdownValue} -- Ensure SelectedOptions is always a table
+	    -- Multi-selection mode
+	    if not DropdownValue or #DropdownValue == 0 then
+	        DropdownValue = DefaultOptions or {}
+	    end
 	end
 
 
