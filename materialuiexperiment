@@ -1204,22 +1204,22 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local DropdownCallback = DropdownConfig.Callback or function() print("nil dropdown") end
     local DropdownOptions = DropdownConfig.Options or {}
     local Menu = DropdownConfig.Menu or {}
-	local MultiSelect = DropdownConfig.MultiSelect or false
-	local SelectedOptions = {}  -- Empty table for MultiSelect initially
+    local MultiSelect = DropdownConfig.MultiSelect or false
+    local DefaultOptions = DropdownConfig.DefaultOptions or {}
+
+	local SelectedOptions = MultiSelect and {} or {}  -- Initialize as an empty table
 	
-	-- If MultiSelect is false, assign the first default option
-	if not MultiSelect and #DefaultOptions > 0 then
-	    DropdownValue = DropdownValue or DefaultOptions[1]  -- Assign the first DefaultOption if not set
+	if MultiSelect then
+	    -- Multi-selection mode: Keep it empty initially
+	    SelectedOptions = table.clone(DefaultOptions) -- You can initialize with DefaultOptions if needed
 	else
-	    -- If MultiSelect is true, initialize SelectedOptions with DefaultOptions if available
-	    if MultiSelect and #DefaultOptions > 0 then
-	        -- Copy DefaultOptions into SelectedOptions
-	        SelectedOptions = {}
-	        for _, option in ipairs(DefaultOptions) do
-	            table.insert(SelectedOptions, option)
-	        end
+	    -- Single-selection mode: Check if DefaultOptions has values
+	    if not DropdownValue and #DefaultOptions > 0 then
+	        DropdownValue = DefaultOptions[1] -- Assign the first default option if DropdownValue is nil
 	    end
 	end
+
+
 
 
     local Dropdown = Objects.new("Frame")
@@ -2323,10 +2323,23 @@ end
 			end
 
 			function ToggleLibrary:SetState(Value)
-				ToggleDefault = Value
-				TweenService:Create(Dot, TweenInfo.new(0.15), {Position = (ToggleDefault and UDim2.fromScale(1,0.5) or UDim2.fromScale(0,0.5)) - UDim2.fromOffset(8,8), ImageColor3 = ToggleDefault and Theme.Toggle or Theme.ToggleAccent}):Play()
-				ToggleCallback(ToggleDefault)
+			    local ToggleDefault = Value  -- Declare locally within the scope of each toggle
+			
+			    -- Update the tween for the toggle's position and color
+			    local targetPosition = ToggleDefault and UDim2.fromScale(1, 0.5) or UDim2.fromScale(0, 0.5)
+			    local targetColor = ToggleDefault and Theme.Toggle or Theme.ToggleAccent
+			
+			    local tween = TweenService:Create(Dot, TweenInfo.new(0.15), {
+			        Position = targetPosition - UDim2.fromOffset(8, 8),
+			        ImageColor3 = targetColor
+			    })
+			
+			    tween:Play()
+			
+			    -- Call the callback with the new toggle state (local state for each toggle)
+			    ToggleCallback(ToggleDefault)
 			end
+
 
 			function ToggleLibrary:GetState()
 				return ToggleDefault
