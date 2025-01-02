@@ -2238,7 +2238,7 @@ end
 			return ColorPickerLibrary
 		end
 
-		function OptionLibrary.Toggle(ToggleConfig)
+				function OptionLibrary.Toggle(ToggleConfig)
 			local ToggleText = ToggleConfig.Text or "nil toggle"
 			local ToggleCallback = ToggleConfig.Callback or function() print("nil toggle") end
 			local ToggleDefault = ToggleConfig.Enabled or false
@@ -2321,30 +2321,12 @@ end
 			function ToggleLibrary:GetText()
 				return ToggleLabel.Text
 			end
-			
+
 			function ToggleLibrary:SetState(Value)
-			    -- Update the ToggleDefault directly on the toggle object
-			    self.ToggleDefault = Value  -- Store the state on the object itself (preserving state)
-			
-			    -- Determine target position and color based on the state
-			    local targetPosition = self.ToggleDefault and UDim2.fromScale(1, 0.5) or UDim2.fromScale(0, 0.5)
-			    local targetColor = self.ToggleDefault and Theme.Toggle or Theme.ToggleAccent
-			
-			    -- Create a tween to update the visual state of the toggle
-			    local tween = TweenService:Create(Dot, TweenInfo.new(0.15), {
-			        Position = targetPosition - UDim2.fromOffset(8, 8),  -- Position the dot
-			        ImageColor3 = targetColor  -- Change the dot's color
-			    })
-			    
-			    -- Play the tween immediately to reflect the state change
-			    tween:Play()
-			
-			    -- Immediately call the callback to notify external listeners about the state change
-			    ToggleCallback(self.ToggleDefault)
+				ToggleDefault = Value
+				TweenService:Create(Dot, TweenInfo.new(0.15), {Position = (ToggleDefault and UDim2.fromScale(1,0.5) or UDim2.fromScale(0,0.5)) - UDim2.fromOffset(8,8), ImageColor3 = ToggleDefault and Theme.Toggle or Theme.ToggleAccent}):Play()
+				ToggleCallback(ToggleDefault)
 			end
-
-
-
 
 			function ToggleLibrary:GetState()
 				return ToggleDefault
