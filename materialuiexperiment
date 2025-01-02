@@ -1206,7 +1206,15 @@ function OptionLibrary.Dropdown(DropdownConfig)
     local Menu = DropdownConfig.Menu or {}
     local MultiSelect = DropdownConfig.MultiSelect or false
     local DefaultOptions = DropdownConfig.DefaultOptions or {}
-    local SelectedOptions = MultiSelect and table.clone(DefaultOptions) or {}
+
+   local SelectedOptions = MultiSelect and table.clone(DefaultOptions) or {}
+
+    -- If MultiSelect is false, set the default value for DropdownValue
+    if not MultiSelect then
+        if DropdownValue or #DefaultOptions > 0 then
+            DropdownValue = DropdownValue or DefaultOptions[1]
+        end
+    end
 
     local Dropdown = Objects.new("Frame")
     Dropdown.Name = "Dropdown"
@@ -1268,18 +1276,16 @@ function OptionLibrary.Dropdown(DropdownConfig)
     DropdownList.Padding = UDim.new(0, 5)
     DropdownList.Parent = DropdownContent
 
-local function UpdateDropdownTitle()
-    if MultiSelect then
-        local selectedText = table.concat(SelectedOptions, ", ")
-        print("Selected Options: ", SelectedOptions)  -- Debug print
-        DropdownTitle.Text = DropdownText .. ": " .. (selectedText ~= "" and selectedText or "None")
-    else
-        print("Dropdown Value: ", DropdownValue)  -- Debug print
-        DropdownTitle.Text = DropdownText .. ": " .. (DropdownValue or "None")
+    local function UpdateDropdownTitle()
+        if MultiSelect then
+            local selectedText = table.concat(SelectedOptions, ", ")
+            DropdownTitle.Text = DropdownText .. ": " .. (selectedText ~= "" and selectedText or "None")
+        else
+            DropdownTitle.Text = DropdownText .. ": " .. (DropdownValue or "None")
+        end
     end
-end
 
- local function CreateDropdownOptions()
+    local function CreateDropdownOptions()
     -- Clear existing options and their connections
     for _, child in ipairs(DropdownContent:GetChildren()) do
         if child:IsA("TextButton") then
@@ -1289,6 +1295,12 @@ end
             end
             child:Destroy()
         end
+    end
+
+    -- Check if DropdownOptions is populated
+    if #DropdownOptions == 0 then
+        print("No options to create.")  -- Debug print
+        return
     end
 
     -- Recreate dropdown options from DropdownOptions
@@ -1320,15 +1332,21 @@ end
         end)
 
         -- Update button appearance for selected options
-        if MultiSelect and table.find(SelectedOptions, Value) or (not MultiSelect and DropdownValue == Value) then
+        if (MultiSelect and table.find(SelectedOptions, Value)) or (not MultiSelect and DropdownValue == Value) then
             NewButton.BackgroundColor3 = Theme.DropdownAccent -- Highlight selected
         else
             NewButton.BackgroundColor3 = Theme.Dropdown -- Default color
         end
     end
+
+    -- Update dropdown size
+    NumberOfOptions = #DropdownOptions
+    DropdownSize = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, (NumberOfOptions * 20) + ((NumberOfOptions - 1) * 5))
+    print("Dropdown size updated to: ", DropdownSize)  -- Debug print
 end
 
-    CreateDropdownOptions()
+-- Call the function to create dropdown options
+CreateDropdownOptions()
 
     DropdownList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         if DropToggle then
@@ -1353,27 +1371,36 @@ end
     local DropdownLibrary = {}
 
 function DropdownLibrary:Refresh()
-    -- Reset selected options or value based on MultiSelect
-    if MultiSelect then
-        SelectedOptions = table.clone(DefaultOptions)
-    else
-        DropdownValue = DropdownConfig.Default
+    -- Clear existing buttons in DropdownContent
+    for _, child in ipairs(DropdownContent:GetChildren()) do
+        if child:IsA("TextButton") then
+            -- Disconnect all connections before destroying
+            for _, connection in pairs(getconnections(child.MouseButton1Down)) do
+                connection:Disconnect()
+            end
+            child:Destroy()
+        end
     end
+	
+	SelectedOptions = table.clone(DefaultOptions)
 
-    -- Close the dropdown if it is open
-    DropToggle = false
 
-    -- Animate the dropdown closing
-    TweenService:Create(DropdownButton, TweenInfo.new(0.15), {Rotation = 0}):Play()
-    TweenService:Create(DropdownContent, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0)}):Play()
-    TweenService:Create(Dropdown, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 30)}):Play()
+    DropToggle = false -- Close the dropdown (ensure it's set to closed)
 
-    -- Recreate dropdown options to reflect the current state
+    -- Smoothly reset the dropdown button and content size back to initial state
+    TweenService:Create(DropdownButton, TweenInfo.new(0.15), {Rotation = 0}):Play() -- Reset button rotation
+    TweenService:Create(DropdownContent, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0)}):Play() -- Close dropdown content
+    TweenService:Create(Dropdown, TweenInfo.new(0.15), {Size = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, 30)}):Play() -- Close the dropdown frame
+
+    -- Ensure all options are updated (recreate options if needed)
     CreateDropdownOptions()
 
-    -- Update the title to reflect the current selection
+    -- Refresh the title text based on current selection
     UpdateDropdownTitle()
+
+    -- Optional: If you need to reset other UI elements or perform additional actions, do it here.
 end
+
 
     function DropdownLibrary:SetText(Value)
         if type(Value) == "string" then
@@ -1391,37 +1418,26 @@ end
         return MultiSelect and SelectedOptions or DropdownValue
     end
 
-function DropdownLibrary:SetOptions(NewOptions)
-    -- Update the dropdown options with the new list
-    DropdownOptions = NewOptions or {}
+    function DropdownLibrary:SetOptions(NewOptions)
+        DropdownOptions = NewOptions or {}
+        if MultiSelect then
+            SelectedOptions = {}
+        else
+            DropdownValue = nil
+        end
 
-    -- Reset selected options or value based on MultiSelect
-    if MultiSelect then
-        SelectedOptions = {}  -- Clear selected options for multi-select
-    else
-        DropdownValue = nil  -- Clear the selected value for single-select
+        CreateDropdownOptions()
+        UpdateDropdownTitle()
+
+        if DropToggle then
+            TweenService:Create(Dropdown, TweenInfo.new(0.15), {
+                Size = DropdownSize + UDim2.fromOffset(0, 35)
+            }):Play()
+            TweenService:Create(DropdownContent, TweenInfo.new(0.15), {
+                Size = DropdownSize
+            }):Play()
+        end
     end
-
-    -- Recreate dropdown options to reflect the new state
-    CreateDropdownOptions()
-
-    -- Update the title to reflect the current selection
-    UpdateDropdownTitle()
-
-    -- If the dropdown is currently open, adjust its size
-    if DropToggle then
-        -- Calculate the new size based on the number of options
-        local NumberOfOptions = #DropdownOptions
-        local DropdownSize = UDim2.fromScale(1, 0) + UDim2.fromOffset(0, (NumberOfOptions * 20) + ((NumberOfOptions - 1) * 5))
-
-        TweenService:Create(Dropdown, TweenInfo.new(0.15), {
-            Size = DropdownSize + UDim2.fromOffset(0, 35)
-        }):Play()
-        TweenService:Create(DropdownContent, TweenInfo.new(0.15), {
-            Size = DropdownSize
-        }):Play()
-    end
-end
 
     function DropdownLibrary:GetOptions()
         return DropdownOptions
