@@ -1211,13 +1211,14 @@ function OptionLibrary.Dropdown(DropdownConfig)
 	
 	if MultiSelect then
 	    -- Multi-selection mode
-	    SelectedOptions = table.clone(DefaultOptions) -- Clone DefaultOptions into SelectedOptions
+	    SelectedOptions = table.clone(DefaultOptions) -- Initialize SelectedOptions with DefaultOptions
 	else
 	    -- Single-selection mode
 	    if not DropdownValue and #DefaultOptions > 0 then
 	        DropdownValue = DefaultOptions[1] -- Assign the first default option if DropdownValue is nil
 	    end
 	end
+
 
 
     local Dropdown = Objects.new("Frame")
@@ -1280,14 +1281,15 @@ function OptionLibrary.Dropdown(DropdownConfig)
     DropdownList.Padding = UDim.new(0, 5)
     DropdownList.Parent = DropdownContent
 
-    local function UpdateDropdownTitle()
-        if MultiSelect then
-            local selectedText = table.concat(SelectedOptions, ", ")
-            DropdownTitle.Text = DropdownText .. ": " .. (selectedText ~= "" and selectedText or "None")
-        else
-            DropdownTitle.Text = DropdownText .. ": " .. (DropdownValue or "None")
-        end
-    end
+	local function UpdateDropdownTitle()
+	    if MultiSelect then
+	        local selectedText = #SelectedOptions > 0 and table.concat(SelectedOptions, ", ") or "None"
+	        DropdownTitle.Text = DropdownText .. ": " .. selectedText
+	    else
+	        DropdownTitle.Text = DropdownText .. ": " .. (DropdownValue or "None")
+	    end
+	end
+
 
     local function CreateDropdownOptions()
     -- Clear existing options and their connections
